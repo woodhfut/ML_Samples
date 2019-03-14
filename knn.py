@@ -36,7 +36,7 @@ def prepareData(X, y, rootpath):
             y.append(d) 
             count +=1
 
-def Recognize(imgPath,knn):
+def getTestData(imgPath):
     try:
         im = Image.open(imgPath)
         im = im.convert('P')
@@ -86,13 +86,13 @@ def Recognize(imgPath,knn):
         for letter in letters:
             im3 = im2.crop((letter[0], 0, letter[1], im2.size[1]))
             im3 = im3.resize(ImgSize)
+            im3.save(str(count)+'.png')
             testX[count] = np.asarray(im3).flatten()
             count+=1
 
-        predicts = knn.predict(testX)
-        return ''.join(predicts)
+        return testX
     except Exception as ex:
-        pass
+        print('error: ', ex)
 
 if __name__ =='__main__':
     prepareData(X, y, RootPath)
@@ -100,7 +100,7 @@ if __name__ =='__main__':
     knn = neighbors.KNeighborsClassifier()
     
     knn.fit(X, y)
-
-    r = Recognize('./Imgs/2.png', knn)
+    testx = getTestData('./Imgs/2.png')
+    r = knn.predict(testx)
 
     print(r)
