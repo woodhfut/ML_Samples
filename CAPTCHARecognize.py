@@ -109,7 +109,6 @@ if __name__ =='__main__':
     y_test=[]
     for d in os.listdir(TestingDataPath):
         if re.match(r'[A-Za-z]{4}.*', d):
-            print('d is ', d)
             y_test.extend(d[0:4].lower())
             x = prepareTestData(os.path.join(TestingDataPath, d))
             X_test.extend(x)
@@ -124,8 +123,8 @@ if __name__ =='__main__':
     knn_pre = knn.predict(X_test)
 
     knn_accuracy = metrics.accuracy_score(y_test, knn_pre)
-
-    print(knn_pre)
+    knn_confusion_matrix = metrics.confusion_matrix(y_test, knn_pre)
+    print(knn_confusion_matrix)
     print('knn: accuracy is {}, time used {}sec'.format(knn_accuracy, time.time()-t))
 
     t = time.time()
@@ -135,6 +134,6 @@ if __name__ =='__main__':
     svm_pre = svc.predict(X_test)
 
     svm_accuracy = metrics.accuracy_score(y_test, svm_pre)
-
-    print(svm_pre)
+    svm_confusion_matrix = metrics.confusion_matrix(y_test, svm_pre)
+    print(svm_confusion_matrix)
     print('svm: accuracy is {}, time used {}sec'.format(svm_accuracy, time.time() -t))
