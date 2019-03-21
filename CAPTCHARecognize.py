@@ -2,10 +2,12 @@ from PIL import Image
 import numpy as np
 import os
 from sklearn import neighbors
+from sklearn import svm
+import time
 
 m = 3278
 width, height = 20, 40
-n = width* height
+n = width * height
 
 charCount = 4
 
@@ -19,7 +21,6 @@ RootPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samples')
 def img2vect(imgPath):
     try:
         img = Image.open(imgPath)
-        #print(np.asarray(img).shape)
         return np.asanyarray(img).flatten()
     except IOError as ex:
         print('error for {}, ignore it.{}'.format(imgPath, ex))
@@ -32,6 +33,7 @@ def prepareData(X, y, rootpath):
         tmp = os.path.join(os.path.join(RootPath, d), 'resized')
         for f in os.listdir(tmp):
             imgdata = img2vect(os.path.join(tmp, f))
+
             X[count] = imgdata
             y.append(d) 
             count +=1
@@ -54,10 +56,12 @@ def getTestData(imgPath):
         for x in range(im.size[0]):
             for y in range(im.size[1]):
                 pixel = im.getpixel((x,y))
-                if pixel != temp[0][0]:
+                if pixel != temp[0][0]: #for character part, set it to black.
                     im2.putpixel((x,y),0)
+                else:
+                    im2.putpixel((x,y), 1)
         #im2.show()
-
+        
         inletter = False
         foundletter = False
         start = 0
@@ -68,7 +72,7 @@ def getTestData(imgPath):
         for x in range(im2.size[0]):
             for y in range(im2.size[1]):
                 pix = im2.getpixel((x,y))
-                if pix != 255:
+                if pix != 1:
                     inletter = True
             if foundletter == False and inletter == True:
                 foundletter = True
@@ -86,7 +90,6 @@ def getTestData(imgPath):
         for letter in letters:
             im3 = im2.crop((letter[0], 0, letter[1], im2.size[1]))
             im3 = im3.resize(ImgSize)
-            im3.save(str(count)+'.png')
             testX[count] = np.asarray(im3).flatten()
             count+=1
 
@@ -97,10 +100,18 @@ def getTestData(imgPath):
 if __name__ =='__main__':
     prepareData(X, y, RootPath)
     
+    t = time.time()
     knn = neighbors.KNeighborsClassifier()
     
     knn.fit(X, y)
     testx = getTestData('./Imgs/2.png')
     r = knn.predict(testx)
 
-    print(r)
+    print('knn: result is {}, time used {}sec'.format(r, time.time()-t))
+
+    t = time.time()
+    svc = svm.SVC(gamma='scale', decision_function_shape='ovo', C=1, verbose=False)
+
+    svc.fit(X, y)
+    pre = svc.predict(testx)
+    print('svm: result is {}, time used {}sec'.format(pre, time.time() -t))

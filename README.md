@@ -10,8 +10,8 @@ Imgs:
     imgs of original CAPTCHA img, can use this for verification.
 
 
-knn.py:
+CAPTCHARecognize.py:
 
-    this is a sample using KNN algorithm to recognize CAPTCHA img. 
+    this is a sample using KNN and SVM algorithm to recognize CAPTCHA img. 
 
     
